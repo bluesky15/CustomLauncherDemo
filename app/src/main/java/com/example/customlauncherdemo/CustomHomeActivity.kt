@@ -1,7 +1,6 @@
 package com.example.customlauncherdemo
 
 import android.content.ComponentName
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.customlauncherdemo.ui.theme.CustomLauncherDemoTheme
 
@@ -45,7 +45,7 @@ class CustomHomeActivity : ComponentActivity() {
             Button(modifier = Modifier.align(alignment = Alignment.BottomCenter), onClick = {
                 disableLauncher()
             }) {
-                Text(text = "Set Default Launcher")
+                Text(text = stringResource(id = R.string.reset_launcher))
             }
         }
     }
@@ -58,7 +58,6 @@ class CustomHomeActivity : ComponentActivity() {
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
             PackageManager.DONT_KILL_APP
         )
-        startActivity(Intent(this@CustomHomeActivity, CustomLauncherActivity::class.java))
         this@CustomHomeActivity.finish()
     }
 

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">CustomLauncherDemo</string>
     <string name="title_activity_custom_home">CustomHomeActivity</string>
+    <string name="reset_launcher">RESET LAUNCHER</string>
+    <string name="set_custom_launcher">SET CUSTOM LAUNCHER</string>
+    <string name="please_select_custom_launcher">Please select the custom launcher</string>
 </resources>
