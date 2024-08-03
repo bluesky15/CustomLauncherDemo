@@ -2,9 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
-
+    <queries>
+        <!-- Specific apps you interact with, eg: -->
+        <package android:name="com.example.store" />
+        <package android:name="com.example.service" />
+        <!--
+             Specific intents you query for,
+             eg: for a custom share UI
+        -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="image/jpeg" />
+        </intent>
+    </queries>
     <application
+        android:name=".App"
         android:clearTaskOnLaunch="true"
         android:stateNotNeeded="true"
         android:allowBackup="true"

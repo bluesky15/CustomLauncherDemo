@@ -10,12 +10,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -26,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -35,13 +38,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.customlauncherdemo.ui.theme.CustomLauncherDemoTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class CustomHomeActivity : ComponentActivity() {
     private var pkgAppsList: List<ResolveInfo>? = null
+    private val viewModel: HomeViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        viewModel.getWeatherData()
         onBackPressedDispatcher.addCallback(this) {
             // Back is pressed
             // Do nothing
@@ -63,41 +69,48 @@ class CustomHomeActivity : ComponentActivity() {
 
     @Composable
     fun HomeScreen(modifier: Modifier = Modifier) {
-        Box(modifier = modifier
-            .fillMaxSize()
-            .padding(top = 24.dp)) {
-            LazyVerticalGrid(modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Fixed(5),
-                content = {
-                    items(pkgAppsList!!) {
-                        Column(modifier = Modifier
-                            .padding(4.dp)
-                            .width(75.dp)
-                            .height(85.dp)
-                            .clickable {
-                                launchApplication(it)
-                            }) {
-                            val icon =
-                                rememberAsyncImagePainter(it.activityInfo.loadIcon(packageManager))
-                            Image(
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .width(55.dp)
-                                    .height(55.dp),
-                                painter = icon,
-                                contentDescription = null
-                            )
-                            Text(
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                text = it.activityInfo.loadLabel(packageManager).toString(),
-                                maxLines = 1,
-                                fontSize = 12.sp,
-                                overflow = TextOverflow.Ellipsis
-                            )
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = 24.dp)
+        ) {
+            Column {
+                WeatherWidget()
+                Spacer(modifier = Modifier.padding(12.dp))
+                LazyVerticalGrid(modifier = Modifier.fillMaxSize(),
+                    columns = GridCells.Fixed(5),
+                    content = {
+                        items(pkgAppsList!!) {
+                            Column(modifier = Modifier
+                                .padding(4.dp)
+                                .width(75.dp)
+                                .height(85.dp)
+                                .clickable {
+                                    launchApplication(it)
+                                }) {
+                                val icon =
+                                    rememberAsyncImagePainter(it.activityInfo.loadIcon(packageManager))
+                                Image(
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .width(55.dp)
+                                        .height(55.dp),
+                                    painter = icon,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    text = it.activityInfo.loadLabel(packageManager).toString(),
+                                    maxLines = 1,
+                                    fontSize = 12.sp,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
+
             Button(modifier = Modifier.align(alignment = Alignment.BottomCenter), onClick = {
                 disableLauncher()
             }) {
@@ -134,6 +147,37 @@ class CustomHomeActivity : ComponentActivity() {
     fun HomeScreenPreview() {
         CustomLauncherDemoTheme {
             HomeScreen()
+        }
+    }
+
+    @Composable
+    fun WeatherWidget() {
+        val weatherState = viewModel.weatherData.collectAsState()
+        val errorState = viewModel.error.collectAsState()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp), contentAlignment = Alignment.Center
+        ) {
+            weatherState.value?.let {
+                Column {
+                    Text(text = it.city, fontSize = 16.sp)
+                    Text(text = it.temp, fontSize = 36.sp)
+                    Text(text = it.feelLike, fontSize = 16.sp)
+                }
+            }
+            errorState.value?.let {
+                Text(text = it)
+            }
+
+        }
+    }
+
+    @Composable
+    @Preview(showBackground = true)
+    fun WeatherWidgetPreview() {
+        CustomLauncherDemoTheme {
+            WeatherWidget()
         }
     }
 }
